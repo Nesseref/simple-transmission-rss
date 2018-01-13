@@ -24,6 +24,8 @@ FEEDS = [
 'pattern' : '',
 'dl_dir' : '',
 'subdirs' : True,
+'subdir_pattern' : '',
+'subdir_match_index' : '',
 'url' : ''
 }
 ]
@@ -35,7 +37,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-def process_feed(url, pattern, dl_dir, subdirs, tc):
+def process_feed(url, pattern, dl_dir, subdirs, subdir_pattern, subdir_match_index, tc):
     try:
         feed = feedparser.parse(url)
     except Exception, e:
@@ -43,11 +45,11 @@ def process_feed(url, pattern, dl_dir, subdirs, tc):
     r = re.compile(pattern)
     entries = [e for e in feed.entries if r.match(e.title)]
     logger.debug('Fetched %d matching entries', len(entries))
-    p = re.compile('(.*)::')
     for e in entries:
-        m = p.match(e.title)
         if subdirs:
-            path = dl_dir + m.group(1)[:-1]
+            p = re.compile(subdir_pattern)
+            m = p.match(e.title)
+            path = dl_dir + m.group(subdir_match_index)
         else:
             path = dl_dir
         if not os.path.isdir(path):
@@ -62,6 +64,6 @@ except Exception, e:
 
 for feed in FEEDS:
     logger.info('Processing feed %s', feed['url'])
-    process_feed(feed['url'], feed['pattern'], feed['dl_dir'], feed['subdirs'], client)
+    process_feed(feed['url'], feed['pattern'], feed['dl_dir'], feed['subdirs'], feed['subdir_pattern'], feed['subdir_match_index'], client)
 
 
