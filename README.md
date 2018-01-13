@@ -17,32 +17,38 @@ For example, invoking on the hour every hour,
 Depending on your preferred log location, you may need to `touch` and `chmod/chown` the file beforehand. I considered `syslog` integration, but that's a pain and not as portable as it should be. 
 
 # Example configuration
-```
-LOG = '/var/log/trss.log'
-LOGLEVEL = logging.INFO
-HOST = 'localhost'
-PORT = 9091
-USER = None
-PASSWORD = None
-HTTP_HANDLER = None
-TIMEOUT = None
 
-FEEDS = [
-{
-'pattern' : '.*(some real name|another real name).*placebo resolution.*some subgroup.*Episode.*',
-'dl_dir' : '/a/',
-'subdirs' : True,
-'subdir_pattern' : '(.*) ::',
-'subdir_match_index' : 1,
-'url' : 'https://[redacted sekrit club :^)]'
-},
-{
-'pattern' : '.*(some real name|another real name).*Episode.*',
-'dl_dir' : '/tv/',
-'subdirs' : True,
-'subdir_pattern' : '(.*) ::',
-'subdir_match_index' : 1,
-'url' : 'https://[redacted sekrit club :^)]'
-}
-]
+Create a file `config.json` in the same directory as `trss.py`.
 ```
+{
+    "transmission": {
+        "http_handler": null,
+        "address": "localhost",
+        "user": null,
+        "timeout": null,
+        "password": null,
+        "port": 9091
+    },
+    "logging": {
+        "file": "/var/log/trss.log",
+        "level": "INFO"
+    },
+    "feeds": [
+        {
+            "pattern": ".*(some real name|another real name).*placebo resolution.*some subgroup.*Episode.*",
+            "dl_dir": "/a/",
+            "subdirs": true,
+            "subdir_pattern": "(.*) ::",
+            "subdir_match_index": 1,
+            "url": "https://[redacted sekrit club :^)]"
+        },
+        {
+            "pattern": ".*(some real name|another real name).*Episode.*",
+            "dl_dir": "/tv/",
+            "subdirs": true,
+            "subdir_pattern": "(.*) ::",
+            "subdir_match_index": 1,
+            "url": "https://[redacted sekrit club :^)]"
+        }
+    ]
+}

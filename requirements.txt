@@ -1,0 +1,2 @@
+git+git://github.com/kurtmckee/feedparser
+transmissionrpc==0.11

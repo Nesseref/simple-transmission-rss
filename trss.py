@@ -1,46 +1,39 @@
-import transmissionrpc
-import feedparser
+import json
 import re
 import os
 import logging
+import feedparser
+import transmissionrpc
 
-'''
-Global settings
-'''
-LOG = '/var/log/trss.log'
-LOGLEVEL = logging.INFO
-HOST = 'localhost'
-PORT = 9091
-USER = None
-PASSWORD = None
-HTTP_HANDLER = None
-TIMEOUT = None 
 
-'''
-Feed configuration: each feed is a dict with expected keys
-'''
-FEEDS = [
-{
-'pattern' : '',
-'dl_dir' : '',
-'subdirs' : True,
-'subdir_pattern' : '',
-'subdir_match_index' : '',
-'url' : ''
+LOG_LEVELS = {
+    'NOTSET': logging.NOTSET,
+    'DEBUG': logging.debug,
+    'INFO': logging.info,
+    'WARNING': logging.warning,
+    'ERROR': logging.error,
+    'CRITICAL': logging.critical
 }
-]
 
+CONFIG_FILE = file(os.path.join(os.path.dirname(__file__), 'config.json'))
+CONFIG = json.load(CONFIG_FILE)
+
+# Feed configuration: each feed is a dict with expected keys
+FEEDS = CONFIG['feeds']
+
+# Setup logger
 logger = logging.getLogger(__name__)
-logger.setLevel(LOGLEVEL)
-handler = logging.FileHandler(LOG)
+logger.setLevel(LOG_LEVELS.get(CONFIG['logging'].get('level', 'INFO'), logging.INFO))
+handler = logging.FileHandler(CONFIG['logging'].get('file', '/var/log/trss.log'))
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+
 def process_feed(url, pattern, dl_dir, subdirs, subdir_pattern, subdir_match_index, tc):
     try:
         feed = feedparser.parse(url)
-    except Exception, e:
+    except Exception:
         logger.error('Failed to fetch stream', exc_info=True)
     r = re.compile(pattern)
     entries = [e for e in feed.entries if r.match(e.title)]
@@ -57,13 +50,13 @@ def process_feed(url, pattern, dl_dir, subdirs, subdir_pattern, subdir_match_ind
         tc.add_torrent(e.link, download_dir=path)
         logger.info('Added torrent %s at path %s', e.title, path)
 
+
 try:
-    client = transmissionrpc.Client(HOST, PORT, USER, PASSWORD, HTTP_HANDLER, TIMEOUT)
-except Exception, e:
+    client = transmissionrpc.Client(**CONFIG['transmission'])
+except Exception:
     logger.error('Failed to connect to daemon', exc_info=True)
 
 for feed in FEEDS:
     logger.info('Processing feed %s', feed['url'])
-    process_feed(feed['url'], feed['pattern'], feed['dl_dir'], feed['subdirs'], feed['subdir_pattern'], feed['subdir_match_index'], client)
-
-
+    feed.update({'tc', client})
+    process_feed(**feed)
