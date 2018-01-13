@@ -14,9 +14,19 @@ For example, invoking on the hour every hour,
 ```
 0 * * * * /usr/home/orc/trss/bin/python2.7 /usr/home/orc/trss/trss.py
 ```
+Depending on your preferred log location, you may need to `touch` and `chmod/chown` the file beforehand. I considered `syslog` integration, but that's a pain and not as portable as it should be. 
 
 # Example configuration
 ```
+LOG = '/var/log/trss.log'
+LOGLEVEL = logging.INFO
+HOST = 'localhost'
+PORT = 9091
+USER = None
+PASSWORD = None
+HTTP_HANDLER = None
+TIMEOUT = None
+
 FEEDS = [
 {
 'pattern' : '.*(some real name|another real name).*placebo resolution.*some subgroup.*Episode.*',
