@@ -46,7 +46,7 @@ def process_feed(url, pattern, dl_dir, subdirs, subdir_pattern, subdir_match_ind
             try:
                 p = re.compile(subdir_pattern)
             except Exception:
-                logger.error('Failed to compile regular expression %s for feed %s', pattern, url, exc_info=True)
+                logger.error('Failed to compile regular expression %s for feed %s', subdir_pattern, url, exc_info=True)
             m = p.match(e.title)
             path = dl_dir + m.group(subdir_match_index)
         else:
