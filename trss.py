@@ -8,11 +8,11 @@ import transmissionrpc
 
 LOG_LEVELS = {
     'NOTSET': logging.NOTSET,
-    'DEBUG': logging.debug,
-    'INFO': logging.info,
-    'WARNING': logging.warning,
-    'ERROR': logging.error,
-    'CRITICAL': logging.critical
+    'DEBUG': logging.DEBUG,
+    'INFO': logging.INFO,
+    'WARNING': logging.WARNING,
+    'ERROR': logging.ERROR,
+    'CRITICAL': logging.CRITICAL
 }
 
 CONFIG_FILE = file(os.path.join(os.path.dirname(__file__), 'config.json'))
@@ -58,5 +58,5 @@ except Exception:
 
 for feed in FEEDS:
     logger.info('Processing feed %s', feed['url'])
-    feed.update({'tc', client})
+    feed.update({'tc' : client})
     process_feed(**feed)
