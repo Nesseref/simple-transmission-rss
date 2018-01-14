@@ -34,19 +34,28 @@ def process_feed(url, pattern, dl_dir, subdirs, subdir_pattern, subdir_match_ind
     try:
         feed = feedparser.parse(url)
     except Exception:
-        logger.error('Failed to fetch stream', exc_info=True)
-    r = re.compile(pattern)
+        logger.error('Failed to fetch feed for feed %s', url, exc_info=True)
+    try:
+        r = re.compile(pattern)
+    except Exception:
+        logger.error('Failed to compile regular expression %s for feed %s', pattern, url, exc_info=True)
     entries = [e for e in feed.entries if r.match(e.title)]
     logger.debug('Fetched %d matching entries', len(entries))
     for e in entries:
         if subdirs:
-            p = re.compile(subdir_pattern)
+            try:
+                p = re.compile(subdir_pattern)
+            except Exception:
+                logger.error('Failed to compile regular expression %s for feed %s', pattern, url, exc_info=True)
             m = p.match(e.title)
             path = dl_dir + m.group(subdir_match_index)
         else:
             path = dl_dir
         if not os.path.isdir(path):
-            os.makedirs(path)
+            try:
+                os.makedirs(path)
+            except Exception:
+                logger.error('Failed to create working directory %s for feed %s', path, url, exc_info=True)
         tc.add_torrent(e.link, download_dir=path)
         logger.info('Added torrent %s at path %s', e.title, path)
 
